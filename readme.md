@@ -7,7 +7,7 @@ Improve Wifi connectivity in locations with multiple WLAN access points
 Sometimes Android devices do not automatically switch to the strongest possible wireless network. This interrupts or slows connectivity.
 
 Android Wifi Checker checks, whenever you switch on your Android device, whether the wifi signal strength is above an acceptable limit.
-If not it quickly turns Wifi off and on again. This causes Android to pick the network with the strongest signal in your vicinity.
+If not it quickly turns wifi off and on again. This causes Android to pick the network with the strongest signal in your vicinity.
 After unlocking your screen you will immediately be connected to the best possible wifi network.
 
 Android Wifi Checker is free and open source software. It comes with no guarantees, use it on your own risk. For details please see the license below.
@@ -18,7 +18,9 @@ Based on: https://github.com/robertohuertasm/endless-service
 
 ## Usage
 
-Install Android Studio, create a project by cloning this repository, connect your device (enable USB debugging first) and run the app.
+Option 1: Download and install the .apk installation file from the release section.
+
+Option 2: Install Android Studio, create a project by cloning this repository, connect your device (enable USB debugging first) and run the app.
 
 Tap the "Start Wifi Checker" button to enable the service. Play with the settings if you like. The app can be closed without interrupting the service, however, after a reboot, you need to manually restart the app. If you figure out how to work around this please send a pull request.
 
