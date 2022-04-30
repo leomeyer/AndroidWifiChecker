@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity() {
                 val mWifi = manager.getNetworkInfo(ConnectivityManager.TYPE_WIFI)
 
                 // not connected? do nothing
-                if (!mWifi.isConnected) {
+                if (mWifi?.isConnected != true) {
                     Toast.makeText(applicationContext, "Connect to a wifi network to check the signal level", Toast.LENGTH_LONG).show()
                     return@setOnClickListener
                 }
@@ -88,7 +88,7 @@ class MainActivity : AppCompatActivity() {
 
         var value = 0
         try {
-            value = sharedPref.getString(PREF_WIFI_DBM_LEVEL, "0").toInt()
+            value = sharedPref.getString(PREF_WIFI_DBM_LEVEL, "0")?.toInt()!!
         } catch (e: Exception) {}
 
         if (value >= 0) {
@@ -105,11 +105,9 @@ class MainActivity : AppCompatActivity() {
         Intent(this, WifiCheckerService::class.java).also {
             it.action = action.name
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                log("Starting the service in >=26 Mode")
                 startForegroundService(it)
                 return
             }
-            log("Starting the service in < 26 Mode")
             startService(it)
         }
     }

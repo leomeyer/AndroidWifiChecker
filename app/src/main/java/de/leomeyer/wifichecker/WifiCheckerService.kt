@@ -47,7 +47,7 @@ class WifiCheckerService : Service() {
         val mWifi = manager.getNetworkInfo(ConnectivityManager.TYPE_WIFI)
 
         // not connected? do nothing
-        if (!mWifi.isConnected)
+        if (mWifi?.isConnected != true)
             return
 
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(context)
@@ -90,10 +90,10 @@ class WifiCheckerService : Service() {
             if (sharedPref.getBoolean(PREF_NOTIFY_TOGGLE, true))
                 Toast.makeText(context, "Low wifi signal detected. Toggling...", Toast.LENGTH_SHORT).show()
 
-            wifiManager.isWifiEnabled = false
+            wifiManager.setWifiEnabled(false)
             val handler = Handler()
             handler.postDelayed({
-                wifiManager.isWifiEnabled = true
+                wifiManager.setWifiEnabled(true)
             }, 100)
         }
     }
@@ -103,16 +103,13 @@ class WifiCheckerService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        log("onStartCommand executed with startId: $startId")
         if (intent != null) {
             val action = intent.action
-            log("using an intent with action $action")
             when (action) {
                 MainActivity.Actions.START.name -> startService()
                 else -> stopService()
             }
         } else {
-            log("with a null intent. It has been probably restarted by the system.")
             startService()
         }
         // by returning this we make sure the service is restarted if the system kills the service
@@ -169,7 +166,6 @@ class WifiCheckerService : Service() {
             stopForeground(true)
             stopSelf()
         } catch (e: Exception) {
-            log("Service stopped without being started: ${e.message}")
         }
         isServiceStarted = false
     }
