@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="Wifi Checker Settings">
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_toggle_if_no_internet"
+            android:title="Toggle wifi if no internet connectivity" />
+
+        <ListPreference
+            android:entries="@array/pref_wifi_db_level_labels"
+            android:entryValues="@array/pref_wifi_db_level_values"
+            android:key="pref_wifi_db_level"
+            android:title="Wifi signal level threshold"
+            android:summary="Toggle wifi if signal level is below %s" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_notify_toggle"
+            android:title="Notify when toggled" />
+
+    </PreferenceCategory>
+</PreferenceScreen>
