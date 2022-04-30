@@ -18,7 +18,9 @@ Based on: https://github.com/robertohuertasm/endless-service
 
 ## Usage
 
-Install Android Studio, create a project by cloning this repository, connect your device (enable USB debugging first) and run the app.
+Option 1: Download and install the .apk installation file from the release section.
+
+Option 2: Install Android Studio, create a project by cloning this repository, connect your device (enable USB debugging first) and run the app.
 
 Tap the "Start Wifi Checker" button to enable the service. Play with the settings if you like. The app can be closed without interrupting the service, however, after a reboot, you need to manually restart the app. If you figure out how to work around this please send a pull request.
 
