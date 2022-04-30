@@ -24,6 +24,8 @@ Tap the "Start Wifi Checker" button to enable the service. Play with the setting
 
 ## License
 
+My own code is licensed under the:
+
 MIT License
 
 Copyright (c) 2022 Leo Meyer (meyer@software-services.de)
@@ -45,3 +47,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+
+Code of others that has been copied and pasted from various sources into this project is subject to their own license terms.
