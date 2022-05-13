@@ -8,6 +8,7 @@ import android.content.IntentFilter
 import android.graphics.Color
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
 import android.os.*
 import android.preference.PreferenceManager
@@ -23,6 +24,17 @@ class WifiCheckerService : Service() {
         const val PREF_TOGGLE_IF_NO_INTERNET = "pref_toggle_if_no_internet"
         const val PREF_WIFI_DBM_LEVEL = "pref_wifi_db_level"
         const val PREF_NOTIFY_TOGGLE = "pref_notify_toggle"
+
+        fun findSSIDForWifiInfo(manager: WifiManager, wifiInfo: WifiInfo): String? {
+            val listOfConfigurations = manager.configuredNetworks ?: return null
+            for (index in listOfConfigurations.indices) {
+                val configuration = listOfConfigurations[index]
+                if (configuration.networkId == wifiInfo.networkId) {
+                    return configuration.SSID
+                }
+            }
+            return null
+        }
     }
 
     inner class ScreenOnReceiver : BroadcastReceiver() {
@@ -87,8 +99,14 @@ class WifiCheckerService : Service() {
 
         if (toggle) {
             // notify?
-            if (sharedPref.getBoolean(PREF_NOTIFY_TOGGLE, true))
-                Toast.makeText(context, "Low wifi signal detected. Toggling...", Toast.LENGTH_SHORT).show()
+            if (sharedPref.getBoolean(PREF_NOTIFY_TOGGLE, true)) {
+                val wifiInfo = wifiManager.connectionInfo
+                val ssid = findSSIDForWifiInfo(wifiManager, wifiInfo)
+                if (ssid != null)
+                    Toast.makeText(context, "Wifi signal of '" + ssid + "' is low. Toggling...", Toast.LENGTH_SHORT).show()
+                else
+                    Toast.makeText(context, "Wifi signal is low. Toggling...", Toast.LENGTH_SHORT).show()
+            }
 
             wifiManager.setWifiEnabled(false)
             val handler = Handler()

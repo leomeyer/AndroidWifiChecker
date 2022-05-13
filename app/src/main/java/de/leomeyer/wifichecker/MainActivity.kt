@@ -64,7 +64,11 @@ class MainActivity : AppCompatActivity() {
 
                 val wifiInfo = wifiManager.connectionInfo
 
-                Toast.makeText(applicationContext, "Current wifi level is " + wifiInfo.rssi + " dBm", Toast.LENGTH_LONG).show()
+                val ssid = WifiCheckerService.findSSIDForWifiInfo(wifiManager, wifiInfo)
+                if (ssid != null)
+                    Toast.makeText(applicationContext, "Wifi signal level of '" + ssid + "' is " + wifiInfo.rssi + " dBm", Toast.LENGTH_LONG).show()
+                else
+                    Toast.makeText(applicationContext, "Wifi signal level is " + wifiInfo.rssi + " dBm", Toast.LENGTH_LONG).show()
             }
         }
 

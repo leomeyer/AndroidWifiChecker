@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="de.leomeyer.wifichecker">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
@@ -19,8 +18,7 @@
 
         <service
             android:name="de.leomeyer.wifichecker.WifiCheckerService"
-            android:enabled="true"
-            android:exported="true">
+            android:enabled="true">
         </service>
 
         <activity
@@ -34,7 +32,6 @@
         <activity android:name="de.leomeyer.wifichecker.SettingsActivity" />
 
         <receiver
-            android:directBootAware="true"
             android:name="de.leomeyer.wifichecker.StartReceiver"
             android:enabled="true"
             android:exported="true">
