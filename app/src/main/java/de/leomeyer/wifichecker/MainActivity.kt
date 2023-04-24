@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        findViewById<Button>(R.id.btnCheckLevel).let {
+        findViewById<Button>(R.id.btnCheckWifi).let {
             it.setOnClickListener {
                 // get wifi connection strength
                 val wifiManager = getApplicationContext().getSystemService(WIFI_SERVICE) as WifiManager
@@ -69,6 +69,9 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(applicationContext, "Wifi signal level of '" + ssid + "' is " + wifiInfo.rssi + " dBm", Toast.LENGTH_LONG).show()
                 else
                     Toast.makeText(applicationContext, "Wifi signal level is " + wifiInfo.rssi + " dBm", Toast.LENGTH_LONG).show()
+
+                val service = WifiCheckerService()
+                service.checkWifi(this)
             }
         }
 
@@ -101,8 +104,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         // check whether to start the service
-        if (sharedPref.getBoolean(WifiCheckerService.PREF_START_ON_BOOT, false))
+        if (sharedPref.getBoolean(WifiCheckerService.PREF_START_ON_BOOT, false)) {
             actionOnService(Actions.START)
+            // check wifi if the service is enabled
+            val service = WifiCheckerService()
+            service.checkWifi(this)
+        }
     }
 
     private fun actionOnService(action: Actions) {

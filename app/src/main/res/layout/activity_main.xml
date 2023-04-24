@@ -86,11 +86,11 @@
         tools:layout_editor_absoluteX="16dp" />
 
     <Button
-        android:id="@+id/btnCheckLevel"
+        android:id="@+id/btnCheckWifi"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Check Wifi Level"
+        android:text="Check Wifi"
         app:layout_constraintTop_toBottomOf="@+id/btnStopService"
         tools:layout_editor_absoluteX="16dp" />
 
@@ -100,7 +100,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="Settings"
-        app:layout_constraintTop_toBottomOf="@+id/btnCheckLevel"
+        app:layout_constraintTop_toBottomOf="@+id/btnCheckWifi"
         tools:layout_editor_absoluteX="-16dp" />
 
     <Button

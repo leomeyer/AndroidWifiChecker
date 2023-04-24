@@ -40,6 +40,7 @@ class WifiCheckerService : Service() {
     inner class ScreenOnReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
             if (Intent.ACTION_SCREEN_ON == intent!!.action) {
+                Thread.sleep(500)
                 checkWifi(context)
             }
         }
@@ -49,7 +50,7 @@ class WifiCheckerService : Service() {
     private var isServiceStarted = false
     private var screenOn = ScreenOnReceiver()
 
-    private fun checkWifi(context: Context) {
+    public fun checkWifi(context: Context) {
         val wifiManager = context.applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
         // wifi off? do nothing
         if (!wifiManager.isWifiEnabled)
