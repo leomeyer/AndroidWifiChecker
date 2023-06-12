@@ -2,11 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
     <application
         android:allowBackup="true"
@@ -17,22 +19,30 @@
         android:theme="@style/AppTheme">
 
         <service
-            android:name="de.leomeyer.wifichecker.WifiCheckerService"
+            android:name=".WifiCheckerService"
             android:enabled="true">
         </service>
 
+        <service android:name=".StartJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:exported="true"/>
+
+        <service android:name=".CheckJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:exported="true"/>
+
         <activity
-            android:name="de.leomeyer.wifichecker.MainActivity"
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="de.leomeyer.wifichecker.SettingsActivity" />
+        <activity android:name=".SettingsActivity" />
 
         <receiver
-            android:name="de.leomeyer.wifichecker.StartReceiver"
+            android:name=".StartReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -42,6 +52,7 @@
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
             </intent-filter>
         </receiver>
+
     </application>
 
 </manifest>

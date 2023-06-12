@@ -20,5 +20,12 @@
             android:key="pref_notify_toggle"
             android:title="Notify when toggled" />
 
+        <ListPreference
+            android:entries="@array/pref_periodic_check_labels"
+            android:entryValues="@array/pref_periodic_check_values"
+            android:key="pref_periodic_check"
+            android:title="Check periodically"
+            android:summary="Periodically check network connectivity: %s" />
+
     </PreferenceCategory>
 </PreferenceScreen>

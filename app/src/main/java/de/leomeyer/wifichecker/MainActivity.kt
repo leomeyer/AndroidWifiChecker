@@ -1,5 +1,6 @@
 package de.leomeyer.wifichecker
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.Uri
@@ -7,6 +8,7 @@ import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -110,6 +112,14 @@ class MainActivity : AppCompatActivity() {
             val service = WifiCheckerService()
             service.checkWifi(this)
         }
+    }
+
+    @SuppressLint("BatteryLife")
+    override fun onResume() {
+        super.onResume()
+
+        // request exception to put the app into standby mode; for background check
+        // startActivity(Intent(ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:" + getPackageName())))
     }
 
     private fun actionOnService(action: Actions) {

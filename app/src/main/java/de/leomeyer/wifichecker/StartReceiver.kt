@@ -1,9 +1,11 @@
 package de.leomeyer.wifichecker
 
+import android.app.job.JobInfo
+import android.app.job.JobScheduler
 import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.preference.PreferenceManager
 import de.leomeyer.wifichecker.WifiCheckerService.Companion.PREF_START_ON_BOOT
 
@@ -15,13 +17,12 @@ class StartReceiver : BroadcastReceiver() {
         if (!sharedPref.getBoolean(PREF_START_ON_BOOT, false))
             return
 
-        Intent(context, WifiCheckerService::class.java).also {
-            it.action = MainActivity.Actions.START.name
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(it)
-                return
-            }
-            context.startService(it)
-        }
+        // schedule job for service start
+        val jobInfo = JobInfo.Builder(StartJobService.JOB_ID, ComponentName(context, StartJobService::class.java))
+            .setMinimumLatency(5000)
+            .setBackoffCriteria(5000, JobInfo.BACKOFF_POLICY_LINEAR)
+            .build()
+        var jobScheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+        jobScheduler.schedule(jobInfo)
     }
 }
