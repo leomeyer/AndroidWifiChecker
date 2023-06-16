@@ -2,7 +2,6 @@
     <string name="app_name">AndroidWifiChecker</string>
 
     <string-array name="pref_wifi_db_level_labels">
-        <item>-10 dBm</item>
         <item>-60 dBm</item>
         <item>-65 dBm</item>
         <item>-70 dBm</item>
@@ -12,7 +11,7 @@
         <item>-90 dBm</item>
     </string-array>
     <string-array name="pref_wifi_db_level_values">
-        <item>-10</item>
+        <item>-60</item>
         <item>-65</item>
         <item>-70</item>
         <item>-75</item>

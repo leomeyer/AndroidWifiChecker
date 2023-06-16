@@ -5,27 +5,39 @@
 
         <CheckBoxPreference
             android:defaultValue="true"
-            android:key="pref_toggle_if_no_internet"
-            android:title="Toggle wifi if no internet connectivity" />
+            android:key="pref_start_on_boot"
+            android:title="Start service on device and app start" />
 
         <ListPreference
+            android:defaultValue="-80"
             android:entries="@array/pref_wifi_db_level_labels"
             android:entryValues="@array/pref_wifi_db_level_values"
             android:key="pref_wifi_db_level"
             android:title="Wifi signal level threshold"
             android:summary="Toggle wifi if signal level is below %s" />
 
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="pref_notify_toggle"
-            android:title="Notify when toggled" />
-
         <ListPreference
+            android:defaultValue="0"
             android:entries="@array/pref_periodic_check_labels"
             android:entryValues="@array/pref_periodic_check_values"
             android:key="pref_periodic_check"
             android:title="Check periodically"
             android:summary="Periodically check network connectivity: %s" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_check_when_moved"
+            android:title="Check when the phone is being moved" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_toggle_if_no_internet"
+            android:title="Toggle wifi if no internet connectivity" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_notify_toggle"
+            android:title="Notify when toggled" />
 
     </PreferenceCategory>
 </PreferenceScreen>

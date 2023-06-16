@@ -9,7 +9,7 @@ import android.content.Intent
 import android.preference.PreferenceManager
 import de.leomeyer.wifichecker.WifiCheckerService.Companion.PREF_START_ON_BOOT
 
-class StartReceiver : BroadcastReceiver() {
+class DeviceStartReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         // check whether to start on boot

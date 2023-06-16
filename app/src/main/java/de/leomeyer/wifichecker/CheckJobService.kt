@@ -27,19 +27,19 @@ class CheckJobService : JobService() {
                     .build()
                 var jobScheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
                 jobScheduler.schedule(jobInfo)
-                Log.d("WifiCheckerService", "Periodic check job scheduled to run in $period milliseconds")
+                Log.d(WifiCheckerService.SERVICE_TAG, "Periodic check job scheduled to run in $period milliseconds")
             } else {
-                Log.d("WifiCheckerService", "Periodic check job is disabled")
+                Log.d(WifiCheckerService.SERVICE_TAG, "Periodic check job is disabled")
             }
         }
     }
     override fun onStartJob(p0: JobParameters?): Boolean {
         runCounter++
         if (WifiCheckerService.instance != null) {
-            WifiCheckerService.instance?.checkWifi(applicationContext)
-            Log.d("WifiCheckerService", "Check completed")
+            WifiCheckerService.instance?.checkWifi()
+            Log.d(WifiCheckerService.SERVICE_TAG, "Check completed")
         } else {
-            Log.d("WifiCheckerService", "Check failed: WifiCheckerService instance was null")
+            Log.d(WifiCheckerService.SERVICE_TAG, "Check failed: WifiCheckerService instance was null")
         }
         return true
     }

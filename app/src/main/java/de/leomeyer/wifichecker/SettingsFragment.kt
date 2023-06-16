@@ -4,9 +4,7 @@ import android.app.job.JobScheduler
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.preference.ListPreference
 import android.preference.PreferenceFragment
-
 
 class SettingsFragment : PreferenceFragment(), SharedPreferences.OnSharedPreferenceChangeListener {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,5 +36,11 @@ class SettingsFragment : PreferenceFragment(), SharedPreferences.OnSharedPrefere
                 CheckJobService.checkPeriodicJob(activity, sharedPreferences)
             }
         }
+    }
+
+    fun save() {
+        val editor: SharedPreferences.Editor = preferenceScreen.sharedPreferences.edit()
+        editor.putBoolean(WifiCheckerService.PREF_CONFIGURED, true)
+        editor.apply()
     }
 }
