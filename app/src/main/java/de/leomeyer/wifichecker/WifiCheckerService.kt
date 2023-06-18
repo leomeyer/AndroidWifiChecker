@@ -1,6 +1,11 @@
 package de.leomeyer.wifichecker
 
-import android.app.*
+import android.app.AlarmManager
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.Service
 import android.app.job.JobInfo
 import android.app.job.JobScheduler
 import android.content.BroadcastReceiver
@@ -16,9 +21,13 @@ import android.hardware.SensorManager
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
-import android.os.*
+import android.os.Build
+import android.os.IBinder
+import android.os.PowerManager
+import android.os.SystemClock
 import android.preference.PreferenceManager
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
@@ -28,13 +37,13 @@ import androidx.lifecycle.MutableLiveData
 import java.text.DateFormat
 import java.util.Date
 
-
 class WifiCheckerService : Service(), SensorEventListener {
 
     companion object {
         const val SERVICE_TAG = "WifiCheckerService"
-        
-        const val MOVEMENT_CHECK_DELAY: Int = 5000   // ms
+
+        const val DELAY_AFTER_WIFI_AVAILABLE : Int = 15000   // ms
+        const val MOVEMENT_CHECK_DELAY: Int = 3000   // ms
 
         const val PREF_CONFIGURED = "pref_configured"
         const val PREF_START_ON_BOOT = "pref_start_on_boot"
@@ -74,23 +83,21 @@ class WifiCheckerService : Service(), SensorEventListener {
                     .build()
                 var jobScheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
                 jobScheduler.schedule(jobInfo)
-
-                CheckJobService.runCounter = 0
             }
         }
     }
 
     inner class NetworkCallback : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
-            val capabilities = connectivityManager!!.getNetworkCapabilities(network)
-            wifiNetworkAvailable =
-                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-            Log.d(SERVICE_TAG, "Wifi is available")
+            super.onAvailable(network)
+            wifiAvailableSince = Date()
+            Log.d(SERVICE_TAG, "Wifi is now available")
         }
 
         override fun onLost(network: Network?) {
-            wifiNetworkAvailable = false
-            Log.d(SERVICE_TAG, "Wifi is not available")
+            super.onLost(network)
+            wifiAvailableSince = null
+            Log.d(SERVICE_TAG, "Wifi has been lost")
         }
     }
 
@@ -98,7 +105,7 @@ class WifiCheckerService : Service(), SensorEventListener {
     private var wakeLock: PowerManager.WakeLock? = null
     private var isServiceStarted = false
     private val screenOn = ScreenOnReceiver()
-    private var timeOfLastSignificantMotion : Date? = null
+    private var lastDeviceMovement : Date? = null
     private var sensorManager: SensorManager? = null
 //    private var motionSensor: Sensor? = null
     private var accelerometer: Sensor? = null
@@ -106,20 +113,20 @@ class WifiCheckerService : Service(), SensorEventListener {
     private var wifiManager: WifiManager? = null
     private var connectivityManager: ConnectivityManager? = null
     private var networkCallback = NetworkCallback()
-    private var wifiNetworkAvailable: Boolean? = null
+    private var wifiAvailableSince: Date? = null
     private var ongoingCall = false
 
     fun onDeviceMoved(context: Context) {
         // do not check too often
-        if (timeOfLastSignificantMotion != null)
-            if (Date().time - timeOfLastSignificantMotion!!.time < MOVEMENT_CHECK_DELAY) {
+        if (lastDeviceMovement != null)
+            if (Date().time - lastDeviceMovement!!.time < MOVEMENT_CHECK_DELAY) {
                 // Log.d(SERVICE_TAG, "Device movement detected but delay has not yet passed")
                 return
             }
 
         Log.d(SERVICE_TAG, "Device movement detected")
         //Toast.makeText(context, "Device movement detected", Toast.LENGTH_SHORT).show()
-        timeOfLastSignificantMotion = Date()
+        lastDeviceMovement = Date()
         checkWifi();
     }
 
@@ -129,10 +136,18 @@ class WifiCheckerService : Service(), SensorEventListener {
             if (!sharedPref.getBoolean(PREF_CONFIGURED, false))
                 return false
 
+            // register periodic check job if configured
+            CheckJobService.checkPeriodicJob(applicationContext, sharedPref)
+
+            // wifi not available? do nothing
+            if (wifiAvailableSince == null) {
+                Log.d(SERVICE_TAG, "Wifi is not available")
+                return false
+            }
+
             if (wifiManager == null)
                 wifiManager = applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
 
-            // check signal strength
             val wifiInfo = wifiManager!!.connectionInfo
 
             val rssiThreshold = sharedPref.getString(PREF_WIFI_DBM_LEVEL, "0")?.toInt()
@@ -141,15 +156,6 @@ class WifiCheckerService : Service(), SensorEventListener {
                 Log.d(SERVICE_TAG, "Wifi signal strength check disabled ($rssiThreshold)")
                 return false
             }
-
-            // wifi off? do nothing
-            if (!wifiManager!!.isWifiEnabled) {
-                Log.d(SERVICE_TAG, "Wifi is disabled")
-                return false
-            } else {
-                Log.d(SERVICE_TAG, "Wifi is enabled")
-            }
-
 
             if (connectivityManager == null)
                 connectivityManager = applicationContext.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -164,34 +170,20 @@ class WifiCheckerService : Service(), SensorEventListener {
             val capabilities = connectivityManager!!.getNetworkCapabilities(activeNetwork) // needs ACCESS_NETWORK_STATE permission
 
             // connected to mobile data?
-            if (capabilities == null || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+            if (capabilities == null || !capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
                 Log.d(SERVICE_TAG, "Network is inactive or not a Wifi network")
                 return false
             }
-/*
-            // setup listener if check on movement is enabled
-            if (sharedPref.getBoolean(PREF_CHECK_WHEN_MOVED, false)) {
-                val motionEventListener = object : TriggerEventListener() {
-                    override fun onTrigger(event: TriggerEvent?) {
-                        onDeviceMoved(applicationContext)
-                    }
-                }
-                // request significant movement events
-                motionSensor?.also { sensor ->
-                    val ok = sensorManager?.requestTriggerSensor(motionEventListener, sensor)
-                    if (!ok!!)
-                        Log.d(SERVICE_TAG, "Unable to request movement trigger sensor")
-                }
-            }
- */
-            // register periodic check job if configured
-            CheckJobService.checkPeriodicJob(applicationContext, sharedPref)
 
             // do not check during phone calls to avoid interrupting connections
             if (ongoingCall) {
                 Log.d(SERVICE_TAG, "Skipping wifi check due to ongoing call")
                 return false
             }
+
+            // do not check if Wifi is available for a short time only
+            if (Date().time - wifiAvailableSince!!.time < DELAY_AFTER_WIFI_AVAILABLE)
+                return false
 
             // determine whether to toggle
             var toggle = false
@@ -217,7 +209,8 @@ class WifiCheckerService : Service(), SensorEventListener {
                         Log.d(SERVICE_TAG, "Wifi signal strength is poor (${wifiInfo.rssi} dBm), toggling...")
                     }
 
-                    notificationManager?.notify(NOTIFICATION_ID, createNotification(DateFormat.getTimeInstance().format(Date()) + ": Wifi toggled due to poor connectivity"))
+                    notificationManager?.notify(NOTIFICATION_ID, createNotification(DateFormat.getTimeInstance().format(Date())
+                            + " Wifi toggled due to poor connectivity"))
                 }
 
                 wifiManager!!.setWifiEnabled(false)
@@ -348,7 +341,10 @@ class WifiCheckerService : Service(), SensorEventListener {
         if (connectivityManager == null)
             connectivityManager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
 
-        connectivityManager?.registerDefaultNetworkCallback(networkCallback)
+        val networkRequest = NetworkRequest.Builder()
+            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+            .build()
+        connectivityManager?.requestNetwork(networkRequest, networkCallback)
 
         Log.d(SERVICE_TAG, "------------------------")
         Log.d(SERVICE_TAG, "Service has been started")

@@ -1,8 +1,6 @@
 package de.leomeyer.wifichecker
 
 import android.app.AlertDialog
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.Uri
@@ -13,7 +11,6 @@ import android.preference.PreferenceManager
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import java.util.Observer
 
 
 class MainActivity : AppCompatActivity() {
